@@ -1,4 +1,4 @@
-import { message, Modal } from 'antd';
+import { Modal, notification } from 'antd';
 import { useRecoilState } from 'recoil';
 import { modalState } from '../../store/modal-state';
 import {
@@ -18,28 +18,25 @@ const { Title, Text } = Typography;
 export const MenuModal = () => {
   const [modalProps, setModalProps] = useRecoilState(modalState);
   const { isOpen, cafeInfo } = modalProps;
-  const [messageApi, contextHolder] = message.useMessage();
+  const [api, contextHolder] = notification.useNotification();
 
   const handleCancel = () => {
     setModalProps({ isOpen: false });
   };
 
   const handleClick = (product: TMenu) => {
-    messageApi.open({
-      type: 'success',
-      content: `Ваш заказ: ${product.nameProduct}, ${product.size}мл, принят!`,
-      duration: 5,
-      className: 'success-class',
-      style: {
-        marginTop: '80vh',
-      },
+    api.success({
+      message: 'Заказ принят',
+      description: `Ваш заказ: ${product.nameProduct}, ${product.size}мл, принят!`,
+      showProgress: true,
+      placement: 'bottom',
     });
-    messageApi.open({
-      type: 'info',
-      content: `Твой заказ в консоли`,
-      duration: 6,
-      className: 'info-class',
+    api.info({
+      message: 'Твой заказ в консоли!',
+      showProgress: true,
+      placement: 'topLeft',
     });
+
     const { imageLink, id, ...rest } = product;
     const order = {
       ...rest,
