@@ -7,6 +7,10 @@ export const SHOP_LIST = [
     address: '50 лет ВЛКСМ, 45',
     logo: '',
     available: true,
+    location: {
+      latitude: 45.016467,
+      longitude: 41.891146,
+    },
     menu: [
       {
         id: 1,
@@ -37,6 +41,10 @@ export const SHOP_LIST = [
     address: 'Российский проспект, 33',
     logo: '',
     available: true,
+    location: {
+      latitude: 45.041063,
+      longitude: 41.956211,
+    },
     menu: [
       {
         id: 1,
@@ -67,6 +75,10 @@ export const SHOP_LIST = [
     address: 'Михаила Морозова, 45',
     logo: '',
     available: true,
+    location: {
+      latitude: 45.009662,
+      longitude: 41.922919,
+    },
     menu: [
       {
         id: 1,
