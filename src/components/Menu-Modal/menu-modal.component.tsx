@@ -37,7 +37,7 @@ export const MenuModal = () => {
     messageApi.open({
       type: 'info',
       content: `Твой заказ в консоли`,
-      duration: 5,
+      duration: 6,
       className: 'info-class',
     });
     const { imageLink, id, ...rest } = product;
