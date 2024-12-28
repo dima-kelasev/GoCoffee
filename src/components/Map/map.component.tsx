@@ -5,6 +5,8 @@ import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { modalState } from '../../store/modal-state';
 import { TShopItem } from '../../common/types/shop-item.type';
 import { mapStore } from '../../store/map-state';
+import { SpinBox } from './map.styles';
+import { spinStyle } from '../../common/conts/spin-style';
 
 export const YandexMap = () => {
   const setOpenModal = useSetRecoilState(modalState);
@@ -21,7 +23,14 @@ export const YandexMap = () => {
   };
 
   if (!location.latitude && !location.longitude) {
-    return <Spin tip="Loading" size="large" />;
+    const content = <div style={spinStyle} />;
+    return (
+      <SpinBox>
+        <Spin tip="Загрузка карты" size="large">
+          {content}
+        </Spin>
+      </SpinBox>
+    );
   }
   return (
     <div>
