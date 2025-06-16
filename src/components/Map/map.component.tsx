@@ -1,19 +1,27 @@
-import { Map, Placemark } from '@pbe/react-yandex-maps';
+import { Map, Placemark, YMaps } from '@pbe/react-yandex-maps';
 import { Spin } from 'antd';
 import { SHOP_LIST } from '../../common/conts/shops-list';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { modalState } from '../../store/modal-state';
 import { TShopItem } from '../../common/types/shop-item.type';
 import { mapStore } from '../../store/map-state';
-import { MapContainer, SpinBox } from './map.styles';
+import { SpinBox } from './map.styles';
 import { spinStyle } from '../../common/conts/spin-style';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { usePlaces } from '../../hooks/usePlaces';
+import { ShopSnackBar } from '../ShopSnackBar/shop-snack-bar.component';
 // import { getUserLocation } from '../../common/helpers/get-location.helper';
 
 export const YandexMap = () => {
   const setOpenModal = useSetRecoilState(modalState);
   const location = useRecoilValue(mapStore);
   const setLocation = useSetRecoilState(mapStore);
+  const { places } = usePlaces();
+  const [selectedShop, setSelectedShop] = useState<TShopItem | null>(null);
+
+  const handleShopSelect = (shop: TShopItem) => {
+    setSelectedShop(shop);
+  };
 
   useEffect(() => {
     const mockCoords = { latitude: 45.0428, longitude: 41.9734 };
@@ -29,7 +37,10 @@ export const YandexMap = () => {
       id: shop.id,
     };
     setOpenModal({ isOpen: true, cafeInfo });
+    setSelectedShop(null);
   };
+
+  console.log('selectedShop', selectedShop);
 
   if (!location.latitude && !location.longitude) {
     const content = <div style={spinStyle} />;
@@ -42,25 +53,29 @@ export const YandexMap = () => {
     );
   }
   return (
-    <MapContainer>
+    <YMaps>
       <Map
         defaultState={{ center: [45.0428, 41.9734], zoom: 13 }}
         width="100%"
-        height="100vh"
+        height="100%"
         modules={['templateLayoutFactory']}
       >
         {SHOP_LIST.map((shop) => (
           <Placemark
             key={shop.id}
-            modules={['geoObject.addon.balloon', 'geoObject.addon.hint']}
             geometry={[shop.location.latitude, shop.location.longitude]}
-            onClick={() => handleOpenModal(shop)}
-            properties={{
-              hintContent: `${shop.name}, адресс: ${shop.address}`,
+            modules={[]}
+            onClick={() => handleShopSelect(shop)}
+            options={{
+              preset: 'islands#blueIcon',
             }}
           />
         ))}
       </Map>
-    </MapContainer>
+      <ShopSnackBar
+        selectedShop={selectedShop}
+        handleOpenModal={handleOpenModal}
+      />
+    </YMaps>
   );
 };

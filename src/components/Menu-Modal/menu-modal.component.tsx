@@ -1,4 +1,6 @@
-import { Modal, notification } from 'antd';
+import { Modal, notification, Typography, Button } from 'antd';
+import { ShoppingCartOutlined } from '@ant-design/icons';
+
 import { useRecoilState } from 'recoil';
 import { modalState } from '../../store/modal-state';
 import {
@@ -8,8 +10,9 @@ import {
   MenuItemsContainer,
   MenuTitle,
   ModalTittle,
+  OrderSummary,
 } from './menu-modal.styeld';
-import { Typography } from 'antd';
+import { useState } from 'react';
 import { TMenu } from '../../common/types/shop-item.type';
 import { ORDER_MODAL } from '../../common/conts/modal-key.const';
 
@@ -20,34 +23,47 @@ export const MenuModal = () => {
   const { isOpen, cafeInfo } = modalProps;
   const [api, contextHolder] = notification.useNotification();
 
-  const handleCancel = () => {
-    setModalProps({ isOpen: false });
+  const [cart, setCart] = useState<TMenu[]>([]);
+
+  const isInCart = (product: TMenu) => {
+    return cart.some((item) => item.id === product.id);
   };
 
-  const handleClick = (product: TMenu) => {
-    api.success({
-      message: 'Заказ принят',
-      description: `Ваш заказ: ${product.nameProduct}, ${product.size}мл, принят!`,
-      showProgress: true,
-      placement: 'bottom',
-    });
-    api.info({
-      message: 'Твой заказ в консоли!',
-      showProgress: true,
-      placement: 'topLeft',
-    });
+  const handleCancel = () => {
+    setModalProps({ isOpen: false });
+    setCart([]);
+  };
 
-    const { imageLink, id, ...rest } = product;
-    const order = {
+  const handleAddToCart = (product: TMenu) => {
+    setCart((prev) => [...prev, product]);
+  };
+
+  const handleRemoveFromCart = (product: TMenu) => {
+    setCart((prev) => prev.filter((item) => item.id !== product.id));
+  };
+
+  const handlePlaceOrder = () => {
+    if (cart.length === 0) return;
+
+    const order = cart.map(({ imageLink, id, ...rest }) => ({
       ...rest,
       cafeName: cafeInfo?.name,
       cafeId: cafeInfo?.id,
       productId: id,
-    };
+    }));
 
-    console.log('order', order);
+    console.log('multi-order', order);
+
+    api.success({
+      message: 'Заказ оформлен!',
+      description: `Позиций: ${cart.length}, сумма: ${totalPrice}₽`,
+      placement: 'bottom',
+    });
+
     handleCancel();
   };
+
+  const totalPrice = cart.reduce((sum, item) => sum + Number(item.price), 0);
 
   return (
     <>
@@ -55,7 +71,7 @@ export const MenuModal = () => {
       <Modal
         open={isOpen}
         onCancel={handleCancel}
-        footer={<></>}
+        footer={null}
         width={700}
         key={ORDER_MODAL}
       >
@@ -73,25 +89,50 @@ export const MenuModal = () => {
         </MenuTitle>
 
         <MenuItemsContainer>
-          {cafeInfo?.menu.map((item) => (
-            <MenuItem key={item.nameProduct}>
-              <img
-                src={item.imageLink}
-                alt={item.nameProduct}
-                width={100}
-                height={100}
-              />
-              <MenuDescription>
-                <Title level={5}>{item.nameProduct}</Title>
-                <Text type="secondary">{`${item.size} мл`}</Text>
-              </MenuDescription>
-              <CustomBtn
-                type="primary"
-                onClick={() => handleClick(item)}
-              >{`${item.price}₽`}</CustomBtn>
-            </MenuItem>
-          ))}
+          {cafeInfo?.menu.map((item) => {
+            const inCart = isInCart(item);
+
+            return (
+              <MenuItem key={item.id}>
+                <img
+                  src={item.imageLink}
+                  alt={item.nameProduct}
+                  width={50}
+                  height={50}
+                />
+                <MenuDescription>
+                  <Title level={5}>{item.nameProduct}</Title>
+                  <Text type="secondary">{`${item.size} мл`}</Text>
+                </MenuDescription>
+
+                {inCart ? (
+                  <CustomBtn
+                    type="primary"
+                    onClick={() => handleRemoveFromCart(item)}
+                  >
+                    <ShoppingCartOutlined />
+                  </CustomBtn>
+                ) : (
+                  <CustomBtn
+                    type="primary"
+                    onClick={() => handleAddToCart(item)}
+                  >
+                    {`${item.price}₽`}
+                  </CustomBtn>
+                )}
+              </MenuItem>
+            );
+          })}
         </MenuItemsContainer>
+
+        {cart.length > 0 && (
+          <OrderSummary>
+            <Text strong>Итого: {totalPrice}₽</Text>
+            <Button type="primary" onClick={handlePlaceOrder}>
+              Заказать
+            </Button>
+          </OrderSummary>
+        )}
       </Modal>
     </>
   );

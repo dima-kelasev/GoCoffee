@@ -19,6 +19,7 @@ export const MenuItem = styled.div`
   cursor: pointer;
   gap: 15px;
   width: 96%;
+  align-items: center;
 `;
 
 export const MenuDescription = styled.div`
@@ -28,8 +29,13 @@ export const MenuDescription = styled.div`
 `;
 
 export const CustomBtn = styled(Button)`
-  width: 22%;
-  height: 100px;
+  min-width: 67px;
+  height: 50px;
+  &:focus,
+  &:active {
+    box-shadow: none !important;
+    outline: none !important;
+  }
 `;
 
 export const ModalTittle = styled.div`
@@ -43,4 +49,14 @@ export const MenuTitle = styled.div`
   align-items: center;
   justify-content: center;
   margin-top: 20px;
+`;
+
+export const OrderSummary = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding: 16px;
+  background: #fafafa;
+  border-top: 1px solid #e8e8e8;
+  border-radius: 8px;
 `;

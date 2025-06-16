@@ -12,6 +12,7 @@ export const usePlaces = () => {
     setError(null);
     try {
       const data = await fetchPlaces();
+      console.log('data', data);
       setPlaces(data);
     } catch (error) {
       setError('Не удалось загрузить кафе');
